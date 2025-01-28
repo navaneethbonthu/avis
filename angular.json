@@ -32,9 +32,22 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.scss"
             ],
-            "scripts": [],
+            "scripts": [
+               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+               "node_modules/jquery/dist/jquery.min.js",
+               "src/assets/js/config.js",
+               "src/assets/js/vendor.min.js",
+               "src/assets/vendor/daterangepicker/moment.min.js",
+               "src/assets/vendor/daterangepicker/daterangepicker.js",
+               "src/assets/vendor/apexcharts/apexcharts.min.js",
+               "src/assets/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js",
+               "src/assets/vendor/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js",
+               "src/assets/js/pages/dashboard.js",
+               "src/assets/js/app.min.js"
+            ],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "ssr": {
