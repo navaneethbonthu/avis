@@ -23,7 +23,7 @@ export default class LoginComponent {
 
   errorMessage: string | null = null;
 
-  loginForm = this.fb.group({
+  loginForm = this.fb.nonNullable.group({
     username: ['emilys', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]],
     password: ['emilyspass', [Validators.required, Validators.minLength(6)]],
     // user_email: ['', [Validators.required, Validators.email]],
@@ -34,11 +34,11 @@ export default class LoginComponent {
     console.log(this.loginForm)
     const { username, password } = this.loginForm.value;
     
-    if (username && password) {
-    this.authService.login(username, password)
-    } else {
-      this.errorMessage = 'Username and password are required';
-    }
+    this.authService.login(username, password);
+    // if (username && password) {
+    // } else {
+    //   this.errorMessage = 'Username and password are required';
+    // }
     
   }
 

@@ -1,0 +1,7 @@
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}

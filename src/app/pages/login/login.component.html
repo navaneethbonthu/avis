@@ -24,51 +24,38 @@
                                     </p>
 
                                     <!-- form -->
-                                    <form [formGroup]="loginForm" autocomplete="off">
-                                        
+                                    <form [formGroup]="loginForm" autocomplete="off" (ngSubmit)="onSubmit()">
+
                                         <div class="mb-3">
                                             <label for="emailaddress" class="form-label">User Name</label>
                                             <input class="form-control" type="text" id="emailaddress" autocomplete="off"
                                                 placeholder="Enter your user name" formControlName="username">
-                                           
+
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="password" class="form-label">Password</label>
                                             <input class="form-control" type="text" id="password" autocomplete="off"
                                                 placeholder="Enter your password" formControlName="password">
-                                           
+
                                         </div>
 
-
-
-                                        <!-- <div class="mb-3">
-                                            <a href="auth-forgotpw.html" class="text-muted float-end"><small>Forgot
-                                                    your
-                                                    password?</small></a>
-                                                    <label for="emailaddress" class="form-label">Email address</label>
-                                                    <input class="form-control" type="email" formControlName="user_email" id="emailaddress" required=""
-                                                        placeholder="Enter your email">
-                                        </div> -->
-                                       
                                         <div class="mb-0 text-start">
-                                            
-                                            <button class="btn btn-soft-primary w-100" type="submit" (click)="onSubmit()">
-                                                   
-                                                    @if (authService._authStatus() === 'Unauthenticated') {
-                                                        <i class="ri-login-circle-fill me-1"></i>
-                                                        <span class="fw-bold">Log In</span>
-                                                     }
-                                                     @if (authService._authStatus() === 'Authenticating') {
-                                                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                                        Loading...
-                                                    }
-                                                     
-                                                </button>
-                                          
+                                            <button class="btn btn-soft-primary w-100"
+                                                [class.pointer-events-none]="authService._authStatus() === 'Authenticating'"
+                                                type="submit">
+                                                @if (authService._authStatus() === 'Authenticating') {
+                                                <span class="spinner-border spinner-border-sm me-1" role="status"
+                                                    aria-hidden="true"></span>
+                                                }
+                                                {{authService._authStatus() === 'Authenticating' ? 'Logging in...' :
+                                                'Log In'}}
+                                            </button>
+
                                         </div>
 
-                                        <p  *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</p>
+                                        <p *ngIf="authService._authError()" class="text-danger">{{
+                                            authService._authError() }}</p>
 
                                     </form>
                                     <!-- end form-->
@@ -77,10 +64,14 @@
                                     <div class="text-center mt-4">
                                         <p class="text-muted fs-16">Sign in with</p>
                                         <div class="d-flex gap-2 justify-content-center mt-3">
-                                            <a href="javascript: void(0);" class="btn btn-soft-primary"><i class="ri-facebook-circle-fill"></i></a>
-                                            <a href="javascript: void(0);" class="btn btn-soft-danger"><i class="ri-google-fill"></i></a>
-                                            <a href="javascript: void(0);" class="btn btn-soft-info"><i class="ri-twitter-fill"></i></a>
-                                            <a href="javascript: void(0);" class="btn btn-soft-dark"><i class="ri-github-fill"></i></a>
+                                            <a href="javascript: void(0);" class="btn btn-soft-primary"><i
+                                                    class="ri-facebook-circle-fill"></i></a>
+                                            <a href="javascript: void(0);" class="btn btn-soft-danger"><i
+                                                    class="ri-google-fill"></i></a>
+                                            <a href="javascript: void(0);" class="btn btn-soft-info"><i
+                                                    class="ri-twitter-fill"></i></a>
+                                            <a href="javascript: void(0);" class="btn btn-soft-dark"><i
+                                                    class="ri-github-fill"></i></a>
                                         </div>
                                     </div>
                                     <!-- end Social Media Sign In -->
