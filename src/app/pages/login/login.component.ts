@@ -35,13 +35,7 @@ export default class LoginComponent {
     const { username, password } = this.loginForm.value;
     
     if (username && password) {
-    this.authService.login(username, password).subscribe((response) => {
-      console.log('response', response);
-      if(this.authService.isLoggedIn()){
-        this.router.navigate(['pages/dash-board']);
-      }
-    }
-  )
+    this.authService.login(username, password)
     } else {
       this.errorMessage = 'Username and password are required';
     }

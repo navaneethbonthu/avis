@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, throwError, OperatorFunction } from 'rxjs'
 import { catchError, tap, filter, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Iuser } from './auth';
+import e from 'express';
 
 
 export type AuthStatus = 'Authenticated' | 'Unauthenticated' | 'Authenticating' | 'Error' ;
@@ -24,9 +25,9 @@ export class AuthService {
 
     constructor(private http: HttpClient, private router: Router) {}
   
-    login(username: string, password: string): Observable<any> {
+    login(username: string, password: string) {
       this.authStatus.set('Authenticating');
-      return this.http.post<any>(this.apiUrl, { username, password })
+       this.http.post<any>(this.apiUrl, { username, password })
         .pipe(
           tap(response => {
             this.authStatus.update(() => 'Authenticated');
@@ -40,7 +41,13 @@ export class AuthService {
 
             }
           })
-        );
+        ).subscribe(() => {
+          if(this.isLoggedIn()){
+            this.router.navigate(['pages/dash-board']);
+          }else{
+            this.router.navigate(['/login']);
+          }
+        });
     }
   
     isLoggedIn(): boolean {
