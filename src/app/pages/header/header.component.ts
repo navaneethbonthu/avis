@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input, input } from '@angular/core';
+import { Iuser } from '../../shared/data-access/auth';
+import { AuthService } from '../../shared/data-access/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -7,4 +9,9 @@ import { Component } from '@angular/core';
 })
 export class HeaderComponent {
 
+  public authService = inject(AuthService);
+
+
+  currentUser = input<Iuser>();
+ 
 }

@@ -344,8 +344,9 @@
                         <img src="assets/images/users/avatar-1.jpg" alt="user-image" width="32"
                             class="rounded-circle">
                     </span>
+                    @let fullName = currentUser()?.firstName + ' ' + currentUser()?.lastName;
                     <span class="d-lg-block d-none">
-                        <h5 class="my-0 fw-normal">Thomson <i
+                        <h5 class="my-0 fw-normal">{{ fullName }} <i
                                 class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i></h5>
                     </span>
                 </a>
@@ -380,7 +381,7 @@
                     </a>
 
                     <!-- item-->
-                    <a href="auth-logout-2.html" class="dropdown-item">
+                    <a  class="dropdown-item" (click)="authService.logout()">
                         <i class="ri-logout-box-line fs-18 align-middle me-1"></i>
                         <span>Logout</span>
                     </a>
