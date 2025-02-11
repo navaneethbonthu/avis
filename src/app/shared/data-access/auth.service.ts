@@ -20,8 +20,19 @@ export class AuthService {
     public authUser = signal<Iuser |  undefined >(undefined);
 
 
+
     public _authStatus = this.authStatus.asReadonly();
     public _authUser = this.authUser.asReadonly();
+
+    
+
+
+
+
+
+
+
+
 
 
     constructor(private http: HttpClient, private router: Router) {}
@@ -34,8 +45,9 @@ export class AuthService {
             this.authStatus.update(() => 'Authenticated');
             localStorage.setItem('user_info', JSON.stringify(response))
             this.authUser.update(() => response)
-            console.log('res',response);
+              console.log('res',response);
             if (response.accessToken) {
+              
               localStorage.setItem('user_info', response);
               localStorage.setItem('authToken', response.accessToken);
 
@@ -49,7 +61,6 @@ export class AuthService {
     }
   
     logout(): void {
-      this.authUser.set(undefined);
       this.authStatus.set('Unauthenticated');
       localStorage.removeItem('authToken');
       this.router.navigate(['/login']);
