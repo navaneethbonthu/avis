@@ -19,21 +19,8 @@ export class AuthService {
     public authStatus = signal<AuthStatus>('Unauthenticated');
     public authUser = signal<Iuser |  undefined >(undefined);
 
-
-
     public _authStatus = this.authStatus.asReadonly();
     public _authUser = this.authUser.asReadonly();
-
-    
-
-
-
-
-
-
-
-
-
 
     constructor(private http: HttpClient, private router: Router) {}
   
