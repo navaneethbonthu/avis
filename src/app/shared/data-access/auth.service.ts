@@ -15,13 +15,13 @@ export type AuthStatus = 'Authenticated' | 'Unauthenticated' | 'Authenticating' 
   providedIn: 'root',
 })
 export class AuthService {
-    private apiUrl = 'https://dummyjson.com/auth/login';
+    // private apiUrl = 'https://dummyjson.com/auth/login';
 
     public authStatus = signal<AuthStatus>('Unauthenticated');
     public authUser = signal<Iuser |  undefined >(undefined);
     public authError = signal< string |  undefined >(undefined);
 
-    public _authStatus = this.authStatus.asReadonly();
+    public _authStatus = this.authStatus.asReadonly();  
     public _authUser = this.authUser.asReadonly();
     public _authError = this.authError.asReadonly();
 
@@ -29,7 +29,7 @@ export class AuthService {
   
     login(username: string | undefined, password: string | undefined): void {
       this.authStatus.set('Authenticating');
-       this.http.post<any>(this.apiUrl, { username, password })
+       this.http.post<any>('auth/login', { username, password })
         .pipe(
           catchError((error) => {
             this.authStatus.set('Error');

@@ -15,18 +15,11 @@ import { withBaseUrl } from './interceptors/base-url';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideEnvConfig({apiUrl: environment.apiUrl }),
-
-
-    // { 
-    //   provide: new InjectionToken('ENVIRONMENT'),
-    //   useValue: {apiUrl: environment.apiUrl }
-    // },
-
-
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
+    provideHttpClient(withInterceptors([withBaseUrl, authInterceptor])),
     providePrimeNG({
       theme:
       {
@@ -37,8 +30,7 @@ export const appConfig: ApplicationConfig = {
           cssLayer: false
         }
       }
-    }),
+    })
     
-    provideHttpClient(withInterceptors([ authInterceptor]))
   ]
 };
