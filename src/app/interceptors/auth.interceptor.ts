@@ -8,13 +8,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authToken = localStorage.getItem('authToken');
     const router = inject(Router);
 
-    if(!req.url.startsWith('http')){ // Corrected header name
-        const modifiedReq = req.clone({
+    const baseUrl: string = 'https://dummyjson.com/';
+
+    if(!req.url.startsWith('http')){ 
+        const reqClone = req.clone({
+            // url: `${baseUrl}${req.url}`,
             setHeaders: {
                 Authorization: `Bearer ${authToken}`
             }
         });
-        return next(modifiedReq);
+        return next(reqClone);
     }
 
     return next(req)
