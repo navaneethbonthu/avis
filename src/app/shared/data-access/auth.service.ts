@@ -29,7 +29,7 @@ export class AuthService {
     
     
     this.authStatus.set('Authenticating');
-    this.http.post<any>('auth/login', { username, password })
+    this.http.post<any>('auth/login', { username, password, expiresInMins:10 })
       .pipe(
         catchError((error) => {
           this.authStatus.set('Error');
@@ -96,7 +96,7 @@ export class AuthService {
   public getRefeshToken(): Observable<{ authToken: string; }> {
     const refreshToken = localStorage.getItem('refreshToken');
     return this.http
-      .post<{ authToken: string; refreshToken: string }>('/auth/refresh', null, {
+      .post<{ authToken: string; refreshToken: string }>('/auth/refresh', { expiresInMins: 10 }, {
         headers: {
           Authorization: `Bearer ${refreshToken}`
         }

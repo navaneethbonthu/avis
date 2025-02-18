@@ -22,19 +22,19 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         .pipe(
             catchError((err: HttpErrorResponse) => {
                 if (err.status === 401) {
-                    // authService.logout();
-                    console.log('test',err);
+                    
                     authService.getRefeshToken().pipe(
                         switchMap(
                             ({ authToken }) => {
                                 const reqClone = req.clone({
                                     setHeaders: {
-                                        Authorization: `Bearer ${authToken}`
+                                        Authorization: `Bearer ${authToken}`,
                                     }
                                 });
                                 return next(reqClone);
                             }
                         ),
+                        
                         catchError((err) => {
                             if (err.state === 401) {
                                 authService.logout();
@@ -44,6 +44,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                             return err;
                         }),
                     );
+                    console.log('test', 'refresh token calling before');
                 }
                 throw err;
             })
