@@ -1,24 +1,43 @@
-import { HttpErrorResponse, HttpHandlerFn,  HttpInterceptorFn, HttpRequest, HttpResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpResponse } from "@angular/common/http";
 import { inject, Injector } from "@angular/core";
 import { Router } from "@angular/router";
-import { catchError, throwError } from "rxjs";
+import { log } from "node:console";
+import { catchError, switchMap, throwError } from "rxjs";
+import { AuthService } from "../shared/data-access/auth.service";
+import { response } from "express";
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-    const injector = inject(Injector);
+
     const authToken = localStorage.getItem('authToken');
     const router = inject(Router);
+    const authService = inject(AuthService);
 
-    const baseUrl: string = 'https://dummyjson.com/';
-
-    if(!req.url.startsWith('http')){ 
-        const reqClone = req.clone({
-            setHeaders: {
-                Authorization: `Bearer ${authToken}`
+    const reqClone = req.clone({
+        setHeaders: {
+            Authorization: `Bearer ${authToken}`
+        }
+    });
+    // generate refresh token once the token expires
+    return next(reqClone)
+    .pipe(
+        catchError((err: HttpErrorResponse) => {
+            if (err.status === 401) {
+                authService.logout();
+                authService.getRefeshToken().pipe(
+                    switchMap(
+                        ({authToken}) => {
+                            const reqClone = req.clone({
+                                setHeaders: {
+                                    Authorization: `Bearer ${authToken}`
+                                }
+                            });
+                          return  next(reqClone);
+                        }
+                    ),
+                );
             }
-        });
-        return next(reqClone);
-    }
+            throw err;
+        })
+    );
 
-    return next(req)
-   
 }
