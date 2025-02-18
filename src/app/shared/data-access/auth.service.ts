@@ -26,12 +26,15 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) { }
 
   login(username: string | undefined, password: string | undefined): void {
+    
+    
     this.authStatus.set('Authenticating');
     this.http.post<any>('auth/login', { username, password })
       .pipe(
         catchError((error) => {
           this.authStatus.set('Error');
           this.authError.set(error.message);
+          console.log('test',error.message);
           return EMPTY;
         })
       ).subscribe((response) => {

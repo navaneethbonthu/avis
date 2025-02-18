@@ -19,25 +19,34 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     });
     // generate refresh token once the token expires
     return next(reqClone)
-    .pipe(
-        catchError((err: HttpErrorResponse) => {
-            if (err.status === 401) {
-                authService.logout();
-                authService.getRefeshToken().pipe(
-                    switchMap(
-                        ({authToken}) => {
-                            const reqClone = req.clone({
-                                setHeaders: {
-                                    Authorization: `Bearer ${authToken}`
-                                }
-                            });
-                          return  next(reqClone);
-                        }
-                    ),
-                );
-            }
-            throw err;
-        })
-    );
+        // .pipe(
+        //     catchError((err: HttpErrorResponse) => {
+        //         if (err.status === 401) {
+        //             // authService.logout();
+        //             console.log('test',err);
+        //             authService.getRefeshToken().pipe(
+        //                 switchMap(
+        //                     ({ authToken }) => {
+        //                         const reqClone = req.clone({
+        //                             setHeaders: {
+        //                                 Authorization: `Bearer ${authToken}`
+        //                             }
+        //                         });
+        //                         return next(reqClone);
+        //                     }
+        //                 ),
+        //                 catchError((err) => {
+        //                     if (err.state === 401) {
+        //                         authService.logout();
+        //                     } else if (err.status === 403) {
+        //                         router.navigate(['/']);
+        //                     }
+        //                     return err;
+        //                 }),
+        //             );
+        //         }
+        //         throw err;
+        //     })
+        // );
 
 }
