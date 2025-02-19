@@ -11,6 +11,7 @@ import { authInterceptor } from './interceptors/auth.interceptor'; // Corrected 
 import { environment } from '../assets/environments/environment';
 import { provideEnvConfig } from './providers/environment';
 import { withBaseUrl } from './interceptors/base-url';
+import { WINDOW, windowProvider } from './providers/window';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([withBaseUrl, authInterceptor])),
+    {provide : WINDOW, useFactory: (document: Document) => windowProvider(document), deps: [Document]},
     providePrimeNG({
       theme:
       {

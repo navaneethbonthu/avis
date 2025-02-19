@@ -26,15 +26,15 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) { }
 
   login(username: string | undefined, password: string | undefined): void {
-    
-    
+
+
     this.authStatus.set('Authenticating');
-    this.http.post<any>('auth/login', { username, password, expiresInMins:5 })
+    this.http.post<any>('auth/login', { username, password, expiresInMins: 1 })
       .pipe(
         catchError((error) => {
           this.authStatus.set('Error');
           this.authError.set(error.message);
-          console.log('test',error.message);
+          // console.log('test',error.message);
           return EMPTY;
         })
       ).subscribe((response) => {
@@ -96,19 +96,19 @@ export class AuthService {
   public getRefeshToken(): Observable<{ authToken: string; }> {
     const refreshToken = localStorage.getItem('refreshToken');
     return this.http
-      .post<{ authToken: string; refreshToken: string }>('/auth/refresh', { expiresInMins: 5 }, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`
-        }
+      .post<{ accessToken: string; refreshToken: string }>('auth/refresh', {
+        refreshToken,
+        expiresInMins: 10
       })
       .pipe(
         catchError((error: HttpErrorResponse) => {
           throw error;
         }),
         tap((token) => {
-          localStorage.setItem('accessToken', token.authToken);
+          localStorage.setItem('accessToken', token.accessToken);
           localStorage.setItem('refreshToken', token.refreshToken);
-        })
+        }),
+        map((token) => ({ authToken: token.accessToken }))
       );
   }
 

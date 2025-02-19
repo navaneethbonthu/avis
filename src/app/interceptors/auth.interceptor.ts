@@ -1,14 +1,17 @@
-import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpEvent } from "@angular/common/http";
 import { inject, Injector } from "@angular/core";
 import { Router } from "@angular/router";
-import { log } from "node:console";
-import { catchError, switchMap, throwError } from "rxjs";
+import { BehaviorSubject, catchError, filter, finalize, switchMap, take, throwError, Observable } from "rxjs";
 import { AuthService } from "../shared/data-access/auth.service";
-import { response } from "express";
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
+let isRefreshing = false;
+const pendingRequests = new BehaviorSubject<null | string>(null);
 
+export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
     const authToken = localStorage.getItem('authToken');
+    if (req.url.includes('auth/refresh')) {
+        return next(req);
+    }
     const router = inject(Router);
     const authService = inject(AuthService);
 
@@ -17,37 +20,54 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             Authorization: `Bearer ${authToken}`
         }
     });
-    // generate refresh token once the token expires
-    return next(reqClone)
-        .pipe(
-            catchError((err: HttpErrorResponse) => {
-                if (err.status === 401) {
-                    
-                    authService.getRefeshToken().pipe(
-                        switchMap(
-                            ({ authToken }) => {
-                                const reqClone = req.clone({
-                                    setHeaders: {
-                                        Authorization: `Bearer ${authToken}`,
-                                    }
-                                });
-                                return next(reqClone);
-                            }
-                        ),
-                        
-                        catchError((err) => {
-                            if (err.state === 401) {
+
+    return next(reqClone).pipe(
+        catchError((err: HttpErrorResponse) => {
+            if (err.status === 401) {
+                if (localStorage.getItem('authToken') && !isRefreshing) {
+                    pendingRequests.next(null);
+                    isRefreshing = true;
+                    return authService.getRefeshToken().pipe(
+                        switchMap(({ authToken }) => {
+                            console.log('authToken', authToken);
+                            
+                            isRefreshing = false;
+                            pendingRequests.next(authToken);
+                            const newReqClone = req.clone({
+                                setHeaders: {
+                                    Authorization: `Bearer ${authToken}`,
+                                }
+                            });
+                            return next(newReqClone);
+                        }),
+                        catchError((refreshErr) => {
+                            if (refreshErr.status === 401) {
                                 authService.logout();
-                            } else if (err.status === 403) {
+                            } else if (refreshErr.status === 403) {
                                 router.navigate(['/']);
                             }
-                            return err;
+                            return throwError(refreshErr);
                         }),
+                        finalize(() => (isRefreshing = false)),
                     );
-                    console.log('test', 'refresh token calling before');
+                } else {
+                    return pendingRequests.pipe(
+                        filter((token) => token !== null),
+                        take(1),
+                        switchMap((token) => {
+                            const newReqClone = req.clone({
+                                setHeaders: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            });
+                            return next(newReqClone);
+                        })
+                    );
                 }
-                throw err;
-            })
-        );
-
-}
+            } else if (err.status === 403) {
+                router.navigate(['/page-not-found']);
+            }
+            return throwError(err);
+        })
+    );
+};
