@@ -48,6 +48,16 @@ export class LocalStorage{
        
     }
 
+    public remove(key:string){
+        if(!this.storage) return;
+        this.storage.removeItem(key);
+    }
+
+    public clear(){
+        if(!this.storage) return;
+        this.storage.clear();
+    }
+
 
    
 
