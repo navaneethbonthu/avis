@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, Url
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { LOCAL_STORAGE, LocalStorage } from '../../providers/local-storage';
 
 export const authGuard = (type: 'protected' | 'unprotected'): CanActivateFn => {
   return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> => {
@@ -10,8 +11,9 @@ export const authGuard = (type: 'protected' | 'unprotected'): CanActivateFn => {
     // console.log('blah', route.url)
 
     const router = inject(Router);
+    const localStore = inject(LocalStorage);
 
-    if (type === 'unprotected') {
+    if (type === 'unprotected' && !localStore.get('authToken')) {
       return of(true);
     }
 
@@ -24,7 +26,8 @@ export const authGuard = (type: 'protected' | 'unprotected'): CanActivateFn => {
         // console.log('user', user);
         authService.setAuthstate(user);
         if (user) {
-          return of(true);
+          return route.url[0].path === 'login'
+            ? of(router.createUrlTree(['/pages/dash-board'])) : of(true);
         } else {
           return of(router.createUrlTree(['/login']));
         }

@@ -15,13 +15,12 @@ import { WINDOW, windowProvider } from './providers/window';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideEnvConfig({apiUrl: environment.apiUrl }),
+    provideEnvConfig({ apiUrl: environment.apiUrl }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([withBaseUrl, authInterceptor])),
-    {provide : WINDOW, useFactory: (document: Document) => windowProvider(document), deps: [Document]},
+    { provide: WINDOW, useFactory: (document: Document) => windowProvider(document), deps: [Document] },
     providePrimeNG({
       theme:
       {
@@ -33,6 +32,6 @@ export const appConfig: ApplicationConfig = {
         }
       }
     })
-    
+
   ]
 };

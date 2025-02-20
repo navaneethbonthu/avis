@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, throwError, OperatorFunction, EMPTY } from
 import { catchError, tap, filter, map, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Iuser } from './auth';
+import { LocalStorage } from '../../providers/local-storage';
 
 
 export type AuthStatus = 'Authenticated' | 'Unauthenticated' | 'Authenticating' | 'Error';
@@ -22,6 +23,9 @@ export class AuthService {
   public _authStatus = this.authStatus.asReadonly();
   public _authUser = computed(() => this.authUser());
   public _authError = this.authError.asReadonly();
+
+
+  private localStorage = inject(LocalStorage);
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -40,18 +44,15 @@ export class AuthService {
       ).subscribe((response) => {
 
         this.authStatus.update(() => 'Authenticated');
-        localStorage.setItem('user_info', JSON.stringify(response));
+        this.localStorage.set('user_info', JSON.stringify(response));
 
         this.setAuthstate(response);
 
-        // console.log('res', response);
-        if (typeof window !== 'undefined' && window.localStorage) {
 
-          localStorage.setItem('user_info', response);
-          localStorage.setItem('authToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
+        this.localStorage.set('user_info', response);
+        this.localStorage.set('authToken', response.accessToken);
+        this.localStorage.set('refreshToken', response.refreshToken);
 
-        }
         if (this.isLoggedIn()) {
           this.router.navigate(['pages/dash-board']);
         } else {
@@ -63,12 +64,12 @@ export class AuthService {
   public setAuthstate(res: Iuser) {
     this.authUser.update(() => res);
     this.authStatus.update(() => 'Authenticated');
-    localStorage.setItem('user_info', JSON.stringify(res));
+    this.localStorage.set('user_info', JSON.stringify(res));
   }
 
   isLoggedIn(): boolean {
     if (typeof window !== 'undefined' && window.localStorage) {
-      return !!localStorage.getItem('authToken');
+      return !!this.localStorage.get('authToken');
     }
     else {
       return false
@@ -77,13 +78,13 @@ export class AuthService {
 
   logout(): void {
     this.authStatus.set('Unauthenticated');
-    localStorage.removeItem('authToken');
+    this.localStorage.remove('authToken');
     this.router.navigate(['/login']);
   }
 
 
   public currentUser() {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = this.localStorage.get('authToken');
     return this.http.get<Iuser>('auth/me').pipe(
       catchError((error) => {
         throw error;
@@ -94,7 +95,7 @@ export class AuthService {
 
 
   public getRefeshToken(): Observable<{ authToken: string; }> {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = this.localStorage.get('refreshToken');
     return this.http
       .post<{ accessToken: string; refreshToken: string }>('auth/refresh', {
         refreshToken,
@@ -105,8 +106,8 @@ export class AuthService {
           throw error;
         }),
         tap((token) => {
-          localStorage.setItem('accessToken', token.accessToken);
-          localStorage.setItem('refreshToken', token.refreshToken);
+          this.localStorage.set('accessToken', token.accessToken);
+          this.localStorage.set('refreshToken', token.refreshToken);
         }),
         map((token) => ({ authToken: token.accessToken }))
       );

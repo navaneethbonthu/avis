@@ -3,12 +3,19 @@ import { inject, Injector } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, catchError, filter, finalize, switchMap, take, throwError, Observable } from "rxjs";
 import { AuthService } from "../shared/data-access/auth.service";
+import { LocalStorage } from "../providers/local-storage";
 
 let isRefreshing = false;
 const pendingRequests = new BehaviorSubject<null | string>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
-    const authToken = localStorage.getItem('authToken');
+
+
+    const localStorage = inject(LocalStorage);
+
+
+    const authToken = localStorage.get('authToken');
+    
     if (req.url.includes('auth/refresh')) {
         return next(req);
     }
@@ -24,7 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     return next(reqClone).pipe(
         catchError((err: HttpErrorResponse) => {
             if (err.status === 401) {
-                if (localStorage.getItem('authToken') && !isRefreshing) {
+                if (localStorage.get('authToken') && !isRefreshing) {
                     pendingRequests.next(null);
                     isRefreshing = true;
                     return authService.getRefeshToken().pipe(

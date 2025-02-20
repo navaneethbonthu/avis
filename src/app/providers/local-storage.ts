@@ -4,9 +4,9 @@ import { inject, Injectable, InjectionToken } from "@angular/core";
 
 export const LOCAL_STORAGE = new InjectionToken<Storage | null>('Local Storage', {
 
-    factory:() => {
+    factory: () => {
         const document = inject(DOCUMENT).defaultView;
-        return  document?.localStorage ?? null
+        return document?.localStorage ?? null
     }
 
 });
@@ -14,52 +14,52 @@ export const LOCAL_STORAGE = new InjectionToken<Storage | null>('Local Storage',
 @Injectable({
     providedIn: 'root'
 })
-export class LocalStorage{
+export class LocalStorage {
 
     private readonly storage = inject(LOCAL_STORAGE);
 
 
-    public set(key: string, value: string | object){
- 
-        if(!this.storage) return;
+    public set(key: string, value: string | object) {
 
-        if(typeof value === 'object'){
+        if (!this.storage) return;
+
+        if (typeof value === 'object') {
             this.storage.setItem(key, JSON.stringify(value));
         } else {
             this.storage.setItem(key, value);
         }
     }
 
-    public get<TData = string>(key: string):any{
-        if(!this.storage) return null;
+    public get<TData = string>(key: string): any {
+        if (!this.storage) return null;
 
         const data = this.storage.getItem(key);
 
-        if(!data) return null;
+        if (!data) return null;
 
-        try{
+        try {
             const parsedData = JSON.parse(data);
-            if(typeof parsedData === 'object'){
+            if (typeof parsedData === 'object') {
                 return parsedData as TData extends object ? TData : string;
             }
-        }catch(err) {
+        } catch (err) {
             return data as TData extends object ? TData : string
         }
-       
+
     }
 
-    public remove(key:string){
-        if(!this.storage) return;
+    public remove(key: string) {
+        if (!this.storage) return;
         this.storage.removeItem(key);
     }
 
-    public clear(){
-        if(!this.storage) return;
+    public clear() {
+        if (!this.storage) return;
         this.storage.clear();
     }
 
 
-   
+
 
 
 
